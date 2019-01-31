@@ -10,8 +10,10 @@ camara = cv2.VideoCapture("./video/BANDA_AGUA.mp4")
 # Variables
 fondo = None #Nos servirá para obtener el fondo
 PosicionQ=[] #Posiciones de los Cuadros
+PosicionQ2=[] #Posiciones de los Cuadros externos
 tamanoRecX = 100
 tamanoRecY = 0
+condicion = 0
 #Reproduccion de video
 while True:
     #Obtiene el frame
@@ -54,6 +56,28 @@ while True:
     xRecF = PosicionX + int(tamanoRecX / 2)
     yRecIn = PosicionY - int(tamanoRecY / 2)
     yRecF = PosicionY + int(tamanoRecY / 2)
+    #Extraccion de los rectangulos externos
+    for e in range(0,len(PosicionQ)):
+        for d in range(0,len(PosicionQ)):
+            if d == e:
+                continue
+            if (PosicionQ[e][0] >= PosicionQ[d][0]) and ((PosicionQ[e][0] + PosicionQ[e][2]) <= (PosicionQ[d][0] + PosicionQ[d][2])) and (PosicionQ[e][1] >= PosicionQ[d][1]) and ((PosicionQ[e][1] + PosicionQ[e][3]) <= (PosicionQ[d][1] + PosicionQ[d][3])):
+                condicion = 1
+                break
+            else:
+                condicion = 0
+        #se copian los rectangulos que son externos
+        if condicion == 0:
+            PosicionQ2 = PosicionQ2 + [PosicionQ[e]]
+        condicion = 0
+    for f in PosicionQ2:
+        # Dibujamos el rectángulo del bounds
+        centroX=f[0] + int(f[2]/2)
+        centroY=f[1] + int(f[3]/2)
+        cv2.rectangle(frame, (f[0], f[1]), (f[0] + f[2], f[1] + f[3]), (0, 0, 255), 2)
+    PosicionQ = []
+    PosicionQ2 = []
+    condicion = 0
     #Visualiza el video
     cv2.imshow("Camara", frame)
     cv2.imshow("Resta", resta)
